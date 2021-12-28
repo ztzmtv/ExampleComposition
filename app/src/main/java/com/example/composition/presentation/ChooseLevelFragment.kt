@@ -38,7 +38,7 @@ class ChooseLevelFragment : Fragment() {
         buttonLevel.setOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(R.id.main_container, GameFragment.newInstance(level))
-                .addToBackStack(null)
+                .addToBackStack(GameFragment.NAME)
                 .commit()
         }
     }

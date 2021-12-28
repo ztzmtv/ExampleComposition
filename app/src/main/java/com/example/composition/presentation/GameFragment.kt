@@ -24,7 +24,6 @@ class GameFragment : Fragment() {
         parseArgs()
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,7 +36,13 @@ class GameFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val gameSettings = GameSettings(0, 0, 0, 0)
+//временные параметры
+        val gameSettings = GameSettings(
+            0,
+            0,
+            0,
+            0
+        )
         gameResult = GameResult(false, 0, 0, gameSettings)
 
         binding.tvSum.setOnClickListener {
@@ -59,6 +64,7 @@ class GameFragment : Fragment() {
 
 
     companion object {
+        const val NAME = "GameFragment"
         private const val KEY_LEVEL = "level"
 
         fun newInstance(level: Level): GameFragment {
