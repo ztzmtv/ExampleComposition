@@ -39,15 +39,10 @@ class GameViewModel : ViewModel() {
     private val _questionLiveData = MutableLiveData<Question>()
     val questionLiveData: LiveData<Question> = _questionLiveData
 
+
     fun setSettingsAndStart(level: Level) {
         _gameSettings = getGameSettings(level)
-        _gameResult = GameResult(
-            winner = DEFAULT_WINNER,
-            scoreAnswers=this.scoreAnswers,
-            countOfQuestions = this.countOfQuestions,
-            gameSettings = this.gameSettings
-        )
-        _gameResultLiveData.value = gameResult
+        updateResult()
         startTimer()
     }
 
@@ -125,8 +120,6 @@ class GameViewModel : ViewModel() {
         private const val DEFAULT_SCORE_ANSWERS = 0
         private const val DEFAULT_COUNT_OF_QUESTIONS = 1
         private const val DEFAULT_WINNER = false
-
-        private val DEFAULT_LEVEL = Level.TEST
         private const val TAG = "VIEW_MODEL"
     }
 

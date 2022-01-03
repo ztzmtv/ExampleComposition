@@ -1,7 +1,6 @@
 package com.example.composition.presentation
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,6 +46,7 @@ class GameFragment : Fragment() {
         gameResultObserve()
         isFinishedObserve()
     }
+
 
     private fun timerObserve() {
         viewModel.timerLiveData.observe(viewLifecycleOwner, {
@@ -94,14 +94,17 @@ class GameFragment : Fragment() {
     private fun gameResultObserve() {
         viewModel.gameResultLiveData.observe(viewLifecycleOwner, {
             gameResult = it
-            val scoreAnswers = it.scoreAnswers
-            Log.d(NAME, scoreAnswers.toString())
             val requiredAnswers = gameResult.gameSettings.requiredAnswers
             binding.tvAnswersProgress.text = getString(
                 R.string.progress_answers,
-                scoreAnswers.toString(),
+                it.scoreAnswers.toString(),
                 requiredAnswers.toString()
             )
+            with(binding.progressBar) {
+                max = gameResult.gameSettings.maxSumValue
+                progress = gameResult.scoreAnswers
+                secondaryProgress = gameResult.countOfQuestions - 1
+            }
         })
     }
 
