@@ -8,7 +8,7 @@ import java.io.Serializable
 @Parcelize
 data class GameSettings(
     val maxSumValue: Int,
-    val minCountOfRightAnswers: Int,
-    val minPercentOfRightAnswers: Int,
+    val requiredAnswers: Int,
+    val requiredPercentage: Int,
     val gameTimeInSeconds: Int
 ) : Parcelable

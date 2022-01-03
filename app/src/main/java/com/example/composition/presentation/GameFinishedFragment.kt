@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.example.composition.R
 import com.example.composition.databinding.FragmentGameFinishedBinding
 import com.example.composition.domain.entity.GameResult
 
@@ -33,6 +34,23 @@ class GameFinishedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val scoreAnswers = gameResult.scoreAnswers
+        val countOfQuestions = gameResult.countOfQuestions
+        val scorePercentage = (100 * scoreAnswers / countOfQuestions)
+        val requiredAnswers = gameResult.gameSettings.requiredAnswers
+        val requiredPercentage = gameResult.gameSettings.requiredPercentage
+
+        with(binding) {
+            tvRequiredAnswers.text =
+                getString(R.string.required_score, requiredAnswers.toString())
+            tvScoreAnswers.text =
+                getString(R.string.score_answers, scoreAnswers.toString())
+            tvRequiredPercentage.text =
+                getString(R.string.required_percentage, requiredPercentage.toString())
+            tvScorePercentage.text =
+                getString(R.string.score_percentage, scorePercentage.toString())
+        }
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -62,7 +80,6 @@ class GameFinishedFragment : Fragment() {
     }
 
     companion object {
-
         private const val KEY_GAME_RESULT = "game_result"
 
         fun newInstance(gameResult: GameResult): GameFinishedFragment {

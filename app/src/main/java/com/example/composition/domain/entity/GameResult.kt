@@ -6,8 +6,8 @@ import java.io.Serializable
 
 @Parcelize
 data class GameResult(
-    val winner: Boolean,
-    val countOfRightAnswers: Int,
-    val countOfQuestions: Int,
-    val gameSettings: GameSettings
+    var winner: Boolean,
+    var scoreAnswers: Int,
+    var countOfQuestions: Int,
+    var gameSettings: GameSettings
 ) : Parcelable
