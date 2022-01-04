@@ -4,9 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.navigation.fragment.findNavController
 import com.example.composition.R
 import com.example.composition.databinding.FragmentGameFinishedBinding
 import com.example.composition.domain.entity.GameResult
@@ -50,17 +49,20 @@ class GameFinishedFragment : Fragment() {
                 getString(R.string.required_percentage, requiredPercentage.toString())
             tvScorePercentage.text =
                 getString(R.string.score_percentage, scorePercentage.toString())
+            emojiResult.setImageResource(emojiIfWinner())
         }
 
-        val callback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                retryGame()
-            }
-        }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
         binding.buttonRetry.setOnClickListener {
             retryGame()
         }
+    }
+
+    private fun emojiIfWinner(): Int {
+        return when (gameResult.winner) {
+            true -> R.drawable.ic_smile
+            false -> R.drawable.ic_sad
+        }
+
     }
 
     private fun parseArgs() {
@@ -70,8 +72,7 @@ class GameFinishedFragment : Fragment() {
     }
 
     private fun retryGame() {
-        requireActivity().supportFragmentManager
-            .popBackStack(GameFragment.NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        findNavController().popBackStack()
     }
 
     override fun onDestroyView() {
@@ -80,7 +81,7 @@ class GameFinishedFragment : Fragment() {
     }
 
     companion object {
-        private const val KEY_GAME_RESULT = "game_result"
+        const val KEY_GAME_RESULT = "game_result"
 
         fun newInstance(gameResult: GameResult): GameFinishedFragment {
             return GameFinishedFragment().apply {

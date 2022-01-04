@@ -1,5 +1,6 @@
 package com.example.composition.presentation
 
+import android.app.Application
 import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,13 +13,15 @@ import com.example.composition.domain.entity.Question
 import com.example.composition.domain.usecases.GenerateQuestionUseCase
 import com.example.composition.domain.usecases.GetGameSettingsUseCase
 
-class GameViewModel : ViewModel() {
+class GameViewModel (
+    private val application: Application,
+    private val level: Level
+        ): ViewModel() {
 
     private val repository = GameRepositoryImpl
     private val generateQuestionUseCase = GenerateQuestionUseCase(repository)
     private val getGameSettingsUseCase = GetGameSettingsUseCase(repository)
 
-    private var timer: CountDownTimer? = null
     private var _gameSettings: GameSettings? = null
     private val gameSettings: GameSettings
         get() = _gameSettings ?: throw RuntimeException("_gameSettings == null")
@@ -30,6 +33,7 @@ class GameViewModel : ViewModel() {
     private var countOfQuestions = DEFAULT_COUNT_OF_QUESTIONS
     private var winner = DEFAULT_WINNER
 
+    private var timer: CountDownTimer? = null
     private val _gameResultLiveData = MutableLiveData<GameResult>()
     val gameResultLiveData: LiveData<GameResult> = _gameResultLiveData
     private val _isFinishedLiveData = MutableLiveData<Unit>()
@@ -39,31 +43,23 @@ class GameViewModel : ViewModel() {
     private val _questionLiveData = MutableLiveData<Question>()
     val questionLiveData: LiveData<Question> = _questionLiveData
 
-
-    fun setSettingsAndStart(level: Level) {
-        _gameSettings = getGameSettings(level)
+    init {
+        _gameSettings = getGameSettingsUseCase(level)
         updateResult()
         startTimer()
     }
 
-    private fun startTimer() {
-        val timeInMillis = (gameSettings.gameTimeInSeconds * 1000).toLong()
-        timer = object : CountDownTimer(timeInMillis, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                _timerLiveData.value = (millisUntilFinished / 1000).toInt()
-            }
-
-            override fun onFinish() {
-                _isFinishedLiveData.value = Unit
-            }
-        }.start()
-    }
 
     fun answerQuestion(numberOfAnswer: Int) {
         incrementScore(numberOfAnswer)
         isWinner()
         updateResult()
         updateQuestion()
+    }
+
+    fun updateQuestion() {
+        _questionLiveData.value = generateQuestionUseCase(gameSettings.maxSumValue)
+        countOfQuestions++
     }
 
     private fun incrementScore(numberOfAnswer: Int) {
@@ -75,19 +71,27 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    private fun startTimer() {
+        val timeInMillis = (gameSettings.gameTimeInSeconds * MILLIS_IN_SECONDS)
+        timer = object : CountDownTimer(timeInMillis, MILLIS_IN_SECONDS) {
+            override fun onTick(millisUntilFinished: Long) {
+                _timerLiveData.value = (millisUntilFinished / MILLIS_IN_SECONDS).toInt()
+            }
 
-    fun updateQuestion() {
-        _questionLiveData.value = generateQuestion(gameSettings.maxSumValue)
-        countOfQuestions++
+            override fun onFinish() {
+                _isFinishedLiveData.value = Unit
+            }
+        }
+        timer?.start()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        timer?.cancel()
     }
 
     private fun updateResult() {
-        _gameResult = GameResult(
-            winner = this.winner,
-            scoreAnswers = this.scoreAnswers,
-            countOfQuestions = this.countOfQuestions,
-            gameSettings = this.gameSettings
-        )
+        _gameResult = GameResult(winner, scoreAnswers, countOfQuestions, gameSettings)
         _gameResultLiveData.value = gameResult
     }
 
@@ -101,14 +105,6 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    private fun generateQuestion(maxSumValue: Int): Question {
-        return generateQuestionUseCase(maxSumValue)
-    }
-
-    private fun getGameSettings(level: Level): GameSettings {
-        return getGameSettingsUseCase(level)
-    }
-
     companion object {
         const val ANSWER_NUMBER_1 = 1
         const val ANSWER_NUMBER_2 = 2
@@ -117,6 +113,7 @@ class GameViewModel : ViewModel() {
         const val ANSWER_NUMBER_5 = 5
         const val ANSWER_NUMBER_6 = 6
 
+        private const val MILLIS_IN_SECONDS = 1000L
         private const val DEFAULT_SCORE_ANSWERS = 0
         private const val DEFAULT_COUNT_OF_QUESTIONS = 1
         private const val DEFAULT_WINNER = false
