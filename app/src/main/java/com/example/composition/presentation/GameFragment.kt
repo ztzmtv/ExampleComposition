@@ -90,15 +90,15 @@ class GameFragment : Fragment() {
     private fun gameResultObserve() {
         viewModel.gameResultLiveData.observe(viewLifecycleOwner, {
             gameResult = it
-            val requiredAnswers = gameResult.gameSettings.requiredAnswers
+            val requiredAnswers = gameResult.gameSettings.minCountOfRightAnswers
             binding.tvAnswersProgress.text = getString(
                 R.string.progress_answers,
-                it.scoreAnswers.toString(),
+                it.countOfRightAnswers.toString(),
                 requiredAnswers.toString()
             )
             with(binding.progressBar) {
                 max = gameResult.gameSettings.maxSumValue
-                progress = gameResult.scoreAnswers
+                progress = gameResult.countOfRightAnswers
                 secondaryProgress = gameResult.countOfQuestions - 1
             }
         })
@@ -108,7 +108,6 @@ class GameFragment : Fragment() {
         textView.setOnClickListener {
             viewModel.answerQuestion(answer)
         }
-
     }
 
     override fun onDestroyView() {

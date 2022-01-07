@@ -96,8 +96,8 @@ class GameViewModel (
     }
 
     private fun isWinner() {
-        if ((scoreAnswers >= gameSettings.requiredAnswers &&
-                    (100 * scoreAnswers / countOfQuestions) >= gameSettings.requiredPercentage)
+        if ((scoreAnswers >= gameSettings.minCountOfRightAnswers &&
+                    (100 * scoreAnswers / countOfQuestions) >= gameSettings.minPercentOfRightAnswers)
         ) {
             winner = true
             updateResult()
