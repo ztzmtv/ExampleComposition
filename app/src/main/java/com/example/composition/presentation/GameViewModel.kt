@@ -13,10 +13,10 @@ import com.example.composition.domain.entity.Question
 import com.example.composition.domain.usecases.GenerateQuestionUseCase
 import com.example.composition.domain.usecases.GetGameSettingsUseCase
 
-class GameViewModel (
+class GameViewModel(
     private val application: Application,
     private val level: Level
-        ): ViewModel() {
+) : ViewModel() {
 
     private val repository = GameRepositoryImpl
     private val generateQuestionUseCase = GenerateQuestionUseCase(repository)
@@ -38,13 +38,14 @@ class GameViewModel (
     val gameResultLiveData: LiveData<GameResult> = _gameResultLiveData
     private val _isFinishedLiveData = MutableLiveData<Unit>()
     val isFinishedLiveData: LiveData<Unit> = _isFinishedLiveData
-    private val _timerLiveData = MutableLiveData<Int>()
-    val timerLiveData: LiveData<Int> = _timerLiveData
+    private val _timerLiveData = MutableLiveData<String>()
+    val timerLiveData: LiveData<String> = _timerLiveData
     private val _questionLiveData = MutableLiveData<Question>()
     val questionLiveData: LiveData<Question> = _questionLiveData
 
     init {
         _gameSettings = getGameSettingsUseCase(level)
+        updateQuestion()
         updateResult()
         startTimer()
     }
@@ -62,11 +63,10 @@ class GameViewModel (
         countOfQuestions++
     }
 
-    private fun incrementScore(numberOfAnswer: Int) {
+    private fun incrementScore(answer: Int) {
         _questionLiveData.value?.let { question ->
             val sum = question.sum
             val num = question.visibleNumber
-            val answer = question.options[numberOfAnswer - 1]
             if (answer == sum - num) scoreAnswers++
         }
     }
@@ -75,7 +75,7 @@ class GameViewModel (
         val timeInMillis = (gameSettings.gameTimeInSeconds * MILLIS_IN_SECONDS)
         timer = object : CountDownTimer(timeInMillis, MILLIS_IN_SECONDS) {
             override fun onTick(millisUntilFinished: Long) {
-                _timerLiveData.value = (millisUntilFinished / MILLIS_IN_SECONDS).toInt()
+                _timerLiveData.value = (millisUntilFinished / MILLIS_IN_SECONDS).toInt().toString()
             }
 
             override fun onFinish() {
@@ -106,18 +106,10 @@ class GameViewModel (
     }
 
     companion object {
-        const val ANSWER_NUMBER_1 = 1
-        const val ANSWER_NUMBER_2 = 2
-        const val ANSWER_NUMBER_3 = 3
-        const val ANSWER_NUMBER_4 = 4
-        const val ANSWER_NUMBER_5 = 5
-        const val ANSWER_NUMBER_6 = 6
-
         private const val MILLIS_IN_SECONDS = 1000L
         private const val DEFAULT_SCORE_ANSWERS = 0
-        private const val DEFAULT_COUNT_OF_QUESTIONS = 1
+        private const val DEFAULT_COUNT_OF_QUESTIONS = 0
         private const val DEFAULT_WINNER = false
-        private const val TAG = "VIEW_MODEL"
     }
 
 }

@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.composition.R
 import com.example.composition.databinding.FragmentGameBinding
 import com.example.composition.domain.entity.GameResult
 
@@ -36,20 +35,12 @@ class GameFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.updateQuestion()
-        timerObserve()
-        questionObserve()
-        setOptionClickListeners()
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         gameResultObserve()
         isFinishedObserve()
     }
 
-
-    private fun timerObserve() {
-        viewModel.timerLiveData.observe(viewLifecycleOwner, {
-            binding.tvTimer.text = it.toString()
-        })
-    }
 
     private fun isFinishedObserve() {
         viewModel.isFinishedLiveData.observe(viewLifecycleOwner, {
@@ -59,48 +50,9 @@ class GameFragment : Fragment() {
         })
     }
 
-    private fun setOptionClickListeners() {
-        with(binding) {
-            with(GameViewModel) {
-                setOptionClickListeners(tvOption1, ANSWER_NUMBER_1)
-                setOptionClickListeners(tvOption2, ANSWER_NUMBER_2)
-                setOptionClickListeners(tvOption3, ANSWER_NUMBER_3)
-                setOptionClickListeners(tvOption4, ANSWER_NUMBER_4)
-                setOptionClickListeners(tvOption5, ANSWER_NUMBER_5)
-                setOptionClickListeners(tvOption6, ANSWER_NUMBER_6)
-            }
-        }
-    }
-
-    private fun questionObserve() {
-        viewModel.questionLiveData.observe(viewLifecycleOwner, {
-            with(binding) {
-                tvSum.text = it.sum.toString()
-                tvLeftNumber.text = it.visibleNumber.toString()
-                tvOption1.text = it.options[0].toString()
-                tvOption2.text = it.options[1].toString()
-                tvOption3.text = it.options[2].toString()
-                tvOption4.text = it.options[3].toString()
-                tvOption5.text = it.options[4].toString()
-                tvOption6.text = it.options[5].toString()
-            }
-        })
-    }
-
     private fun gameResultObserve() {
         viewModel.gameResultLiveData.observe(viewLifecycleOwner, {
             gameResult = it
-            val requiredAnswers = gameResult.gameSettings.minCountOfRightAnswers
-            binding.tvAnswersProgress.text = getString(
-                R.string.progress_answers,
-                it.countOfRightAnswers.toString(),
-                requiredAnswers.toString()
-            )
-            with(binding.progressBar) {
-                max = gameResult.gameSettings.maxSumValue
-                progress = gameResult.countOfRightAnswers
-                secondaryProgress = gameResult.countOfQuestions - 1
-            }
         })
     }
 
